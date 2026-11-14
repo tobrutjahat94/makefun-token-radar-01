@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Launch Radar — pre-token protocols ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Token Launch Radar</h1>
+    <p class="tag">Every protocol that records no token yet, ranked by what its launch would be worth — and how to farm it.</p>
+  </div>
+  <div class="meta" id="metaBox">Loading…</div>
+</header>
+
+<nav class="crumbs" id="crumbs">
+  <button type="button" data-route="">Board</button>
+  <button type="button" data-route="model">How value is calculated</button>
+  <button type="button" data-route="peers">Peer ratios</button>
+</nav>
+
+<section class="controls" id="controls">
+  <label>Search <input id="q" type="search" placeholder="protocol name or slug" autocomplete="off"></label>
+  <label>Category
+    <select id="cat"><option value="">All categories</option></select>
+  </label>
+  <label>Sort by
+    <select id="sort">
+      <option value="value">Implied value</option>
+      <option value="tvl">TVL</option>
+      <option value="growth">7-day growth</option>
+      <option value="age">Months listed</option>
+    </select>
+  </label>
+  <label class="check"><input id="watch" type="checkbox"> Watchlist only</label>
+  <span class="count" id="count"></span>
+</section>
+
+<main>
+  <section id="boardView">
+    <table id="board">
+      <thead>
+        <tr>
+          <th data-sort="value">#</th>
+          <th>Protocol</th>
+          <th>Category</th>
+          <th>Chain</th>
+          <th data-sort="tvl">TVL</th>
+          <th data-sort="growth">7d</th>
+          <th data-sort="value">Implied value</th>
+          <th data-sort="age">Age</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="hint">Click a row for the protocol's detail view: value breakdown and the seven farm steps.</p>
+  </section>
+
+  <section id="detailView" hidden>
+    <button type="button" id="backBtn">← Back to the board</button>
+    <div id="detail"></div>
+  </section>
+
+  <section id="modelView" class="doc">
+    <h2>How the implied value is calculated</h2>
+    <p class="formula">implied value = TVL × peer ratio (category) × growth × age</p>
+    <ul>
+      <li><strong>Peer ratio.</strong> For each category, take the live-token protocols in it — protocols whose token already trades — and take the median of their market-cap-per-TVL. That median is the only honest comp for a token that does not exist yet. Categories with few peers are shrunk toward the global median: (n × category median + 5 × global median) / (n + 5), then clamped to 0.01–3.00. A category with no live-token peer at all uses the global median.</li>
+      <li><strong>Growth.</strong> 1 + 0.5 × 7-day TVL change, with the change clamped to ±30%. A protocol growing into its launch is worth more than one shrinking out of it.</li>
+      <li><strong>Age.</strong> 0.90 + 0.10 × min(months listed, 48) / 48. A protocol that has run for years with real TVL and still no token is an overdue launch; the factor is small on purpose, so age only breaks near-ties and never outruns TVL.</li>
+      <li><strong>What is ranked.</strong> Only protocols that record no token (no CoinGecko id and no ticker in the snapshot) and pass the watchlist's own cleanliness test: no version suffix, not a bridge, liquid-staking, restaking or CEX product, no wrapped or staked word in the name, not named after an exchange. A wrapped, staked or bridged product is a product of a token that already trades, not a fresh launch, so it gets no row.</li>
+      <li><strong>What the numbers are.</strong> Implied values are this radar's claim, never a promise. The snapshot records no token; it does not prove a protocol has none. Values are rounded to whole dollars and nudged down by a dollar where rounding would tie two ranks, so the board stays strictly decreasing.</li>
+    </ul>
+  </section>
+
+  <section id="peersView" class="doc">
+    <h2>Peer ratios by category</h2>
+    <p>Live-token protocols per category, their median market-cap-per-TVL, and the shrunk ratio the model actually uses. Thin categories (one or two peers) are pulled hard toward the global median.</p>
+    <table id="peerTable">
+      <thead><tr><th>Category</th><th>Live-token peers</th><th>Median mcap/TVL</th><th>Ratio used</th></tr></thead>
+      <tbody id="peerRows"></tbody>
+    </table>
+  </section>
+</main>
+
+<footer>
+  <p>Snapshot: DefiLlama protocols, fetched 2026-11-14. “Records no token” means the snapshot carries no CoinGecko id and no ticker for the protocol — not proof it has no token. Implied values are this entry's claim. Built with superbot.gg in mind: an uncensored model helps on judgement calls like this one.</p>
+  <p class="fine">Token Launch Radar — a make.fun entry. No network requests: this page renders from its own files alone.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
